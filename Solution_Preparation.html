@@ -1,0 +1,1650 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chemistry Learning App — Solution Preparation Simulator</title>
+<meta name="description" content="Interactive simulator: solids & liquids; molarity, molality, normality, formality; dilution; serial standards; calibration; conversions; quiz. Mulungushi University SNAS — Created by Mr Tembo ZN." />
+<style>
+
+  :root{
+    --bg:#ffffff;
+    --panel:#f8fbff;
+    --panel2:#f2f6ff;
+    --text:#0b1220;
+    --muted:#334155;
+    --good:#047857;
+    --bad:#b91c1c;
+    --grid:#d7dfec;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#ffffff,#eef3ff);
+    color:var(--text);
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu
+  }
+  header{
+    padding:14px 18px;
+    border-bottom:1px solid #d7dfec;
+    background:linear-gradient(180deg,#ffffff,#f4f7ff);
+    position:sticky;top:0;z-index:10
+  }
+  header h1{margin:0;font-size:18px;letter-spacing:.2px;color:#0b1220}
+  header small{display:block;color:#475569}
+  .app{display:grid;grid-template-columns:380px 1fr;gap:14px;padding:16px}
+  .left{background:var(--panel);border:1px solid #d7dfec;border-radius:16px;padding:12px;min-height:74vh}
+  .right{background:var(--panel2);border:1px solid #d7dfec;border-radius:16px;padding:12px;min-height:74vh}
+  h2{margin:4px 0 10px 0;font-size:16px;color:#0b1220}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .tab{
+    padding:8px 10px;
+    border:1px solid #c7d2fe;
+    background:#e0e7ff;
+    color:#0b1220;
+    border-radius:10px;
+    font-size:12px;cursor:pointer
+  }
+  .tab.active{background:linear-gradient(180deg,#e0e7ff,#c7d2fe);box-shadow:0 0 0 1px #a5b4fc inset}
+  .panel{display:none}
+  .panel.active{display:block}
+  label{display:block;font-size:12px;color:#334155;margin-top:8px}
+  input[type="number"], input[type="text"], input[type="password"], select{
+    width:100%;padding:8px 10px;margin-top:4px;border-radius:10px;
+    border:1px solid #cbd5e1;background:#ffffff;color:#0b1220
+  }
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .btn{
+    display:inline-block;padding:8px 12px;margin-top:10px;border-radius:10px;
+    border:1px solid #1e40af;background:linear-gradient(180deg,#2563eb,#1d4ed8);
+    color:#ffffff;cursor:pointer;font-size:12px
+  }
+  .btn:hover{filter:brightness(1.05)}
+  .btn.primary{}
+  .btn.good{background:linear-gradient(180deg,#10b981,#059669);border-color:#047857}
+  .btn.bad{background:linear-gradient(180deg,#ef4444,#dc2626);border-color:#b91c1c}
+  .hint{color:#475569;font-size:12px;margin-top:4px}
+  .grid{border:1px solid #d7dfec;border-radius:12px;overflow:hidden;margin-top:10px;background:#ffffff}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#0b1220}
+  th{background:#eef3ff;text-align:left}
+  code{background:#f8fafc;border:1px solid #e2e8f0;padding:.1rem .35rem;border-radius:6px;color:#0b1220}
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  .callout{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-top:10px;color:#0b1220}
+  .flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .right h3{margin:.5rem 0;color:#0b1220}
+  .kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .kpi .card{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:10px}
+  .kpi .card h4{margin:0 0 6px 0;font-size:12px;color:#334155}
+  .kpi .value{font-size:18px;color:#0b1220}
+  .footer{color:#64748b;font-size:11px;margin-top:12px}
+  #calibPlot{width:100%;height:260px;background:#ffffff;border:1px solid #d7dfec;border-radius:12px}
+
+
+.results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;}
+.results-heading h3{margin:.5rem 0;}
+.results-clear-btn{margin-top:0;}
+
+/* ===== Projector Bold/Dark Overrides ===== */
+body, input, select, table, th, td, label, .hint, .value, .mono, code, small, .kpi .card h4, .footer {
+  color:#0a0a0a !important;
+  font-weight:600 !important;
+}
+header h1 { font-weight:800 !important; color:#0a0a0a !important; }
+h2, h3, h4 { font-weight:700 !important; color:#0a0a0a !important; }
+th { font-weight:700 !important; }
+td { font-weight:600 !important; }
+/* Keep buttons legible (white on colored backgrounds) */
+button.btn { color:#ffffff !important; font-weight:700 !important; }
+/* Inputs placeholder text darker */
+input::placeholder { color:#1f2937 !important; }
+/* Tab active state text bold/dark */
+.tab.active { font-weight:700 !important; }
+/* Quiz/result text darker and bold */
+#quizResult { color:#0a0a0a !important; font-weight:700 !important; }
+/* Header subtitle */
+header small { color:#0a0a0a !important; font-weight:600 !important; }
+
+
+/* ===== Hint softness tweak ===== */
+.hint {
+  color:#6b7280 !important;   /* slate-500: faint but readable on white projectors */
+  font-weight:500 !important; /* slightly reduced weight vs body to look softer */
+}
+
+
+/* ===== Placeholder (hint-in-box) softness ===== */
+input::placeholder, textarea::placeholder {
+  color:#9ca3af !important;   /* slate-400: faint but readable on white */
+  font-weight:400 !important;  /* normal weight so it looks like a hint */
+  opacity:1 !important;        /* ensure consistent visibility across browsers */
+}
+/* Vendor-specific fallbacks */
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { color:#9ca3af !important; font-weight:400 !important; opacity:1 !important; }
+input::-moz-placeholder, textarea::-moz-placeholder { color:#9ca3af !important; font-weight:400 !important; opacity:1 !important; }
+input:-ms-input-placeholder, textarea:-ms-input-placeholder { color:#9ca3af !important; font-weight:400 !important; opacity:1 !important; }
+input:-moz-placeholder, textarea:-moz-placeholder { color:#9ca3af !important; font-weight:400 !important; opacity:1 !important; }
+
+
+/* ===== Fixed results panel and independently scrollable calculator panel ===== */
+body{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+header{
+  flex:0 0 auto;
+}
+.app{
+  flex:1 1 auto;
+  min-height:0;
+  height:auto;
+  overflow:hidden;
+}
+.left{
+  height:100%;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  scrollbar-gutter:stable;
+}
+.right{
+  height:100%;
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.right h3{
+  flex:0 0 auto;
+  font-size:18px;
+}
+#log{
+  flex:1 1 auto;
+  min-height:0 !important;
+  overflow-y:auto;
+  overflow-x:auto;
+  font-family:"Cambria Math","STIX Two Math","Times New Roman",serif !important;
+  font-size:18px !important;
+  line-height:1.65;
+  font-weight:600 !important;
+}
+
+.calculation-history-block{
+  padding:4px 0 18px;
+  border-bottom:1px solid #d7dfec;
+}
+.calculation-history-block:last-child{
+  border-bottom:0;
+}
+
+.equation-line{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:.32em;
+  margin:14px 0;
+  padding:4px 6px;
+  min-height:42px;
+  white-space:normal;
+  font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
+  font-size:26px;
+  line-height:1.35;
+  font-weight:400 !important;
+  color:#050505;
+}
+.equation-line.final-answer{
+  font-size:28px;
+  font-weight:600 !important;
+}
+.eq-var{
+  font-style:italic;
+}
+.eq-op{
+  padding:0 .08em;
+}
+.eq-unit{
+  font-style:normal;
+  white-space:nowrap;
+}
+.eq-frac{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  vertical-align:middle;
+  line-height:1.12;
+  margin:0 .12em;
+}
+.eq-frac .eq-num{
+  display:block;
+  width:100%;
+  padding:0 .30em .12em;
+  text-align:center;
+  border-bottom:2px solid currentColor;
+  white-space:nowrap;
+}
+.eq-frac .eq-den{
+  display:block;
+  padding:.12em .30em 0;
+  text-align:center;
+  white-space:nowrap;
+}
+
+.eq-formula{
+  font-style:normal;
+  white-space:nowrap;
+}
+.eq-formula sub{
+  font-size:.68em;
+  vertical-align:-.28em;
+}
+.eq-text-label{
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu;
+  font-size:20px;
+  font-weight:700 !important;
+  font-style:normal;
+}
+
+.equation-label{
+  margin:12px 4px;
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu;
+  font-size:18px;
+  line-height:1.5;
+  font-style:normal;
+  font-weight:600 !important;
+}
+
+.hydrate-dot{
+  display:inline-block;
+  padding:0 .05em;
+  vertical-align:baseline;
+  font-size:1em;
+  line-height:1;
+}
+#mwOut .eq-formula{
+  font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;
+  font-size:1.15em;
+  font-weight:600 !important;
+}
+#mwOut .eq-formula sub{
+  font-size:.7em;
+  vertical-align:sub;
+}
+.mw-label{font-weight:700 !important;}
+
+@media (max-width:900px){
+  body{overflow:auto}
+  .app{height:auto;overflow:visible}
+  .left,.right{height:auto;overflow:visible}
+  #log{min-height:420px !important;overflow:auto}
+}
+
+/* Mass, Amount and Molar Mass Solver: uniform field widths */
+#mmaMassBox,
+#mmaMolesBox{
+  grid-column:1 / -1;
+}
+#mmaMassBox > label > div,
+#mmaMolesBox > label > div{
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+}
+
+
+
+/* ===== Responsive desktop and mobile layouts ===== */
+
+/* Desktop and large tablets */
+@media (min-width:901px){
+  body{
+    overflow:hidden;
+  }
+  .app{
+    display:grid;
+    grid-template-columns:380px minmax(0,1fr);
+    gap:14px;
+    padding:16px;
+    height:auto;
+    overflow:hidden;
+  }
+  .left,
+  .right{
+    height:100%;
+    min-height:0;
+  }
+  .left{
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+  .right{
+    overflow:hidden;
+  }
+}
+
+/* Mobile phones and small tablets */
+@media (max-width:900px){
+  html,
+  body{
+    height:auto;
+    min-height:100%;
+  }
+  body{
+    display:block;
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+  header{
+    position:sticky;
+    top:0;
+    padding:12px;
+  }
+  header h1{
+    font-size:16px;
+    line-height:1.35;
+  }
+  header small{
+    font-size:11px;
+    line-height:1.4;
+  }
+  .app{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    height:auto;
+    min-height:0;
+    padding:10px;
+    gap:10px;
+    overflow:visible;
+  }
+  .left,
+  .right{
+    width:100%;
+    height:auto;
+    min-height:0;
+    overflow:visible;
+    border-radius:12px;
+  }
+  .right{
+    display:flex;
+    flex-direction:column;
+  }
+  .row{
+    grid-template-columns:minmax(0,1fr);
+  }
+  #mmaMassBox,
+  #mmaMolesBox{
+    grid-column:auto;
+  }
+  #mmaMassBox > label > div,
+  #mmaMolesBox > label > div{
+    grid-template-columns:minmax(0,1fr) minmax(96px,0.42fr) !important;
+  }
+  .tabs{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:4px;
+    scrollbar-width:thin;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tab{
+    flex:0 0 auto;
+    white-space:nowrap;
+  }
+  .flex{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+  }
+  .flex .btn{
+    width:100%;
+    min-height:44px;
+    margin-top:8px;
+  }
+  input[type="number"],
+  input[type="text"],
+  input[type="password"],
+  select{
+    min-height:44px;
+    font-size:16px !important;
+  }
+  .results-heading{
+    position:sticky;
+    top:0;
+    z-index:2;
+    padding:4px 0 8px;
+    background:var(--panel2);
+  }
+  #log{
+    width:100%;
+    min-height:420px !important;
+    max-height:none;
+    overflow-x:auto;
+    overflow-y:visible;
+    font-size:17px !important;
+  }
+  .equation-line{
+    font-size:21px;
+    line-height:1.4;
+    overflow-wrap:anywhere;
+  }
+  .equation-line.final-answer{
+    font-size:23px;
+  }
+  .eq-text-label{
+    font-size:17px;
+  }
+  .grid{
+    overflow-x:auto;
+  }
+  table{
+    min-width:580px;
+  }
+  #calibPlot{
+    min-height:240px;
+  }
+}
+
+/* Very narrow phones */
+@media (max-width:480px){
+  .app{
+    padding:7px;
+  }
+  .left,
+  .right{
+    padding:10px;
+  }
+  .flex{
+    grid-template-columns:1fr;
+  }
+  .results-heading{
+    align-items:center;
+  }
+  .results-clear-btn{
+    flex:0 0 auto;
+  }
+  #mmaMassBox > label > div,
+  #mmaMolesBox > label > div{
+    grid-template-columns:minmax(0,1fr) 92px !important;
+  }
+}
+
+/* ===== Chemistry Learning App visual system ===== */
+:root{
+  --navy:#081b35;
+  --navy-2:#102a4d;
+  --blue:#1257c8;
+  --blue-soft:#eaf2ff;
+  --cyan:#18a6b8;
+  --paper:#f5f7fb;
+  --surface:#ffffff;
+  --line:#dce3ee;
+  --text:#142033;
+  --muted:#59677b;
+  --good:#087443;
+  --bad:#b42318;
+  --grid:#dce3ee;
+  --panel:#ffffff;
+  --panel2:#ffffff;
+}
+html{scroll-behavior:smooth}
+body{
+  min-height:100%;
+  background:var(--paper);
+  color:var(--text) !important;
+  font-size:16px;
+  line-height:1.55;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+button,input,select,textarea{font:inherit}
+button{transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(24,166,184,.32);outline-offset:2px}
+
+header.topbar{
+  position:relative;
+  top:auto;
+  z-index:1;
+  flex:0 0 auto;
+  padding:22px clamp(18px,4vw,56px);
+  border:0;
+  color:#fff;
+  background:radial-gradient(circle at 82% 18%,rgba(44,205,209,.28),transparent 24%),linear-gradient(122deg,var(--navy) 0%,#0b3266 58%,#1257c8 100%);
+  overflow:hidden;
+}
+.topbar-inner{max-width:1540px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.identity{display:flex;align-items:center;gap:16px;min-width:0}
+.mark{width:54px;height:54px;flex:0 0 54px;border-radius:16px;display:grid;place-items:center;background:#fff;color:var(--navy);font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:22px;box-shadow:0 10px 28px rgba(0,0,0,.2)}
+header.topbar h1{margin:0;font-size:clamp(24px,3vw,36px);line-height:1.1;color:#fff !important;letter-spacing:-.025em;font-weight:850 !important}
+header.topbar .subtitle{color:#dbeafe !important;font-size:clamp(13px,1.5vw,16px);margin-top:6px;font-weight:500 !important}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.top-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.1);color:#fff !important;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:750 !important;backdrop-filter:blur(6px)}
+.dot{width:8px;height:8px;border-radius:50%;background:#54e6b3;box-shadow:0 0 0 4px rgba(84,230,179,.14)}
+.course-strip{flex:0 0 auto;background:#fff;border-bottom:1px solid var(--line)}
+.course-strip-inner{max-width:1540px;margin:auto;padding:12px clamp(18px,4vw,56px);display:flex;gap:14px;align-items:center;justify-content:space-between}
+.course-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted) !important;font-size:14px;font-weight:500 !important}
+.course-meta strong{color:var(--text) !important}
+.course-tag{border-radius:999px;background:var(--blue-soft);color:#0b4eb7 !important;padding:5px 10px;font-weight:800 !important;font-size:12px;letter-spacing:.02em}
+
+.app{
+  width:100%;
+  max-width:1600px;
+  margin:0 auto;
+  grid-template-columns:248px minmax(390px,.92fr) minmax(0,1.08fr);
+  gap:18px;
+  padding:22px clamp(14px,2.7vw,38px) 30px;
+  background:transparent;
+}
+.sidebar{
+  min-width:0;
+  height:100%;
+  overflow-y:auto;
+  padding:18px;
+  color:#fff;
+  background:var(--navy);
+  border-radius:22px;
+  box-shadow:0 16px 38px rgba(8,27,53,.18);
+}
+.sidebar-label{margin:2px 8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#a9bdd8 !important;font-weight:800 !important}
+.tabs{display:grid;gap:7px;margin:0;counter-reset:module}
+.tab{
+  counter-increment:module;
+  width:100%;
+  min-height:52px;
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:10px;
+  align-items:center;
+  text-align:left;
+  padding:9px 10px;
+  border:0;
+  border-radius:13px;
+  background:transparent;
+  color:#d8e5f5 !important;
+  font-size:14px;
+  font-weight:750 !important;
+  box-shadow:none;
+}
+.tab::before{content:counter(module,decimal-leading-zero);width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.1);font-size:12px;color:inherit}
+.tab:hover{background:rgba(255,255,255,.08);filter:none;box-shadow:none}
+.tab.active{background:#fff;color:var(--navy) !important;box-shadow:0 9px 22px rgba(0,0,0,.18)}
+.tab.active::before{background:var(--blue-soft);color:var(--blue)}
+.sidebar-note{border-top:1px solid rgba(255,255,255,.12);margin-top:18px;padding:16px 8px 2px;color:#b9c8dc !important;font-size:12px;line-height:1.6;font-weight:500 !important}
+
+.left,.right{
+  min-width:0;
+  min-height:0;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--surface);
+  box-shadow:0 10px 30px rgba(31,48,77,.08);
+}
+.left{padding:20px;scrollbar-gutter:stable}
+.right{padding:20px}
+.panel h2,.panel h3,.right h3{color:var(--navy) !important}
+.panel>h2:first-child,.results-heading{
+  margin:-20px -20px 18px;
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+.panel>h2:first-child{display:flex;align-items:center;gap:10px;font-size:18px}
+.panel>h2:first-child::before,.results-heading h3::before{content:"";display:inline-block;width:5px;height:23px;border-radius:99px;background:linear-gradient(var(--cyan),var(--blue));vertical-align:middle;margin-right:10px}
+.results-heading h3{font-size:18px;color:var(--navy) !important}
+h2{font-size:18px !important}
+h3{font-size:16px !important}
+label{font-size:14px !important;color:#354259 !important;font-weight:750 !important;margin-top:10px}
+.hint{font-size:13px !important;line-height:1.5;color:var(--muted) !important;font-weight:500 !important}
+input[type="number"],input[type="text"],input[type="password"],select{
+  min-height:46px;
+  padding:10px 12px;
+  margin-top:5px;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  background:#fff;
+  color:var(--text) !important;
+  font-size:16px !important;
+  font-weight:500 !important;
+}
+.row{gap:12px}
+.btn{
+  min-height:44px;
+  padding:10px 15px;
+  border:0;
+  border-radius:11px;
+  background:var(--blue);
+  color:#fff !important;
+  font-size:14px;
+  font-weight:750 !important;
+  box-shadow:0 5px 14px rgba(18,87,200,.16);
+}
+.btn:hover{filter:none;box-shadow:0 8px 18px rgba(18,87,200,.2)}
+.btn.good{background:var(--good);border:0}
+.btn.bad{background:var(--bad);border:0}
+.callout{background:#f7faff;border:1px solid #cfe0fa;border-radius:14px;padding:14px;color:#173a65 !important}
+.grid{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:auto}
+table{background:#fff}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:14px !important;color:var(--text) !important}
+th{background:#f5f8fc;color:#30405a !important;white-space:nowrap}
+.kpi{gap:10px;margin:12px 0}
+.kpi .card{border:1px solid var(--line);border-radius:14px;background:#fbfcfe;padding:14px}
+.kpi .value{font-size:20px;color:var(--navy) !important}
+#calibPlot{border:1px solid var(--line);border-radius:14px;background:#fff}
+#log{border:0 !important;border-radius:0 !important;padding:6px 2px 16px !important;background:#fff !important;color:var(--text) !important}
+.calculation-history-block{border-bottom:1px solid var(--line)}
+.footer{padding:18px 4px 4px;color:var(--muted) !important;font-size:12px !important}
+
+@media (min-width:901px){
+  .app{display:grid;height:auto;min-height:0;overflow:hidden}
+  .sidebar,.left,.right{height:100%;min-height:0}
+  .left,.sidebar{overflow-y:auto;overflow-x:hidden}
+  .right{overflow:hidden;display:flex;flex-direction:column}
+}
+@media (max-width:1100px) and (min-width:901px){
+  .app{grid-template-columns:210px minmax(340px,.95fr) minmax(0,1.05fr);gap:12px;padding:16px 12px 24px}
+  .sidebar{padding:14px}.left,.right{padding:16px}
+  .panel>h2:first-child,.results-heading{margin:-16px -16px 16px}
+}
+@media (max-width:900px){
+  html,body{height:auto;min-height:100%}
+  body{display:block;overflow-x:hidden;overflow-y:auto}
+  header.topbar{position:relative;padding:17px 15px}
+  .topbar-inner{align-items:flex-start}.top-actions{display:none}
+  .identity{gap:11px}.mark{width:45px;height:45px;flex-basis:45px;border-radius:13px;font-size:18px}
+  header.topbar h1{font-size:22px}.course-strip-inner{padding:10px 15px;align-items:flex-start;flex-direction:column;gap:7px}
+  .app{display:flex;flex-direction:column;width:100%;height:auto;min-height:0;padding:14px 12px 30px;gap:14px;overflow:visible}
+  .sidebar,.left,.right{width:100%;height:auto;min-height:0;overflow:visible;border-radius:16px}
+  .sidebar{order:0;padding:12px;background:transparent;box-shadow:none}
+  .left{order:1;padding:16px}.right{order:2;padding:16px;display:flex;flex-direction:column}
+  .sidebar-label,.sidebar-note{display:none}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;overflow:visible;padding:0}
+  .tab{display:block;width:100%;min-width:0;min-height:42px;padding:9px 10px;text-align:center;border:1px solid var(--line);border-radius:999px;background:#fff;color:#334155 !important;white-space:normal}
+  .tab::before{display:none}
+  .tab.active{background:var(--navy);color:#fff !important}
+  .tab:last-child{grid-column:1/-1}
+  .panel>h2:first-child,.results-heading{margin:-16px -16px 16px;padding:15px 16px}
+  .row{grid-template-columns:minmax(0,1fr)}
+  .flex{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+  .flex .btn{width:100%;min-height:44px;margin-top:8px}
+  .results-heading{position:static;background:#fff}
+  #log{width:100%;min-height:360px !important;overflow-x:auto;overflow-y:visible;font-size:17px !important}
+  .equation-line{font-size:21px}.equation-line.final-answer{font-size:23px}.eq-text-label{font-size:17px}
+  .grid{overflow-x:auto}table{min-width:580px}
+}
+@media (max-width:520px){
+  .tabs{grid-template-columns:1fr 1fr}
+  .left,.right{padding:14px}.panel>h2:first-child,.results-heading{margin:-14px -14px 14px}
+  .flex{grid-template-columns:1fr 1fr}
+  .equation-line{font-size:19px}.equation-line.final-answer{font-size:21px}
+}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="identity">
+      <div class="mark" aria-hidden="true">Mu</div>
+      <div>
+        <h1>Solution Preparation Simulator</h1>
+        <div class="subtitle">Concentration calculations, laboratory preparation, calibration and guided practice</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="top-badge"><span class="dot"></span> Works offline</span>
+      <span class="top-badge">Undergraduate chemistry</span>
+    </div>
+  </div>
+</header>
+
+<div class="course-strip">
+  <div class="course-strip-inner">
+    <div class="course-meta"><span class="course-tag">SNAS CHEMISTRY</span><span><strong>Interactive solution-preparation workspace</strong></span></div>
+    <div class="course-meta"><span>Mulungushi University</span><span>•</span><span>Created by <strong>Mr Tembo ZN</strong></span></div>
+  </div>
+</div>
+
+<div class="app" aria-live="polite">
+  <aside class="sidebar" aria-label="Simulator modules">
+    <div class="sidebar-label">Learning modules</div>
+    <div class="tabs" id="tabs" role="tablist" aria-label="Main sections"></div>
+    <div class="sidebar-note">Use the calculators to define a chemical quantity, then follow the equation-formatted working in Results & Steps.</div>
+  </aside>
+
+  <section class="left">
+
+    <!-- CALCULATOR -->
+    <div id="panel-calculator" class="panel active" role="tabpanel" aria-labelledby="tab-calculator">
+      <div class="row" id="formulaRow">
+        <div>
+          <label>Chemical formula <span class="hint">(e.g., CuSO4·5H2O)</span>
+            <input id="formula" type="text" placeholder="Enter formula, e.g., CuSO4·5H2O" onkeydown="if(event.key==='Enter'){computeMWFromFormula()}"/>
+          </label>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn" onclick="computeMWFromFormula()">Find molar mass</button>
+          <button class="btn bad" onclick="document.getElementById('formula').value='';">Clear</button>
+        </div>
+      </div>
+      <!-- Molar-mass steps are displayed only in Results & Steps. -->
+
+      <h3 style="margin-top:12px">Mass, Amount and Molar Mass Solver</h3>
+      <div class="hint">Select the quantity to calculate and enter the other two known quantities.</div>
+      <label>Calculate
+        <select id="mmaSolveFor" onchange="configureMMASolver()">
+          <option value="mass">Mass</option>
+          <option value="moles">Amount of substance</option>
+          <option value="molarMass">Molar mass</option>
+        </select>
+      </label>
+      <div class="row">
+        <div id="mmaMassBox"><label>Mass
+          <div style="display:grid;grid-template-columns:1fr 90px;gap:6px">
+            <input id="mmaMass" type="number" step="any" placeholder="Enter mass">
+            <select id="mmaMassUnit"><option value="g">g</option><option value="mg">mg</option><option value="ug">µg</option></select>
+          </div>
+        </label></div>
+        <div id="mmaMolesBox"><label>Amount of substance
+          <div style="display:grid;grid-template-columns:1fr 90px;gap:6px">
+            <input id="mmaMoles" type="number" step="any" placeholder="Enter amount">
+            <select id="mmaMolesUnit"><option value="mol">mol</option><option value="mmol">mmol</option><option value="umol">µmol</option></select>
+          </div>
+        </label></div>
+      </div>
+      <div class="row">
+        <div id="mmaMolarMassBox"><label>Molar mass (g/mol)<input id="mmaMolarMass" type="number" step="any" placeholder="Enter molar mass"></label></div>
+        <div><label>Answer unit<select id="mmaAnswerUnit"></select></label></div>
+      </div>
+      <div class="flex">
+        <button class="btn primary" onclick="solveMassMolesMolarMass()">Solve</button>
+        <button class="btn" onclick="clearMMASolver()">Clear</button>
+      </div>
+      <h2 style="margin-top:16px">Concentration Calculator</h2>
+      <label>Calculation type
+        <select id="concentrationType" onchange="configureConcentrationCalculator()">
+          <option value="M">Molarity (M)</option>
+          <option value="N">Normality (N)</option>
+          <option value="F">Formality (F)</option>
+          <option value="m">Molality (m)</option>
+        </select>
+      </label>
+      <div id="concentrationTypeHint" class="hint">Molarity is the amount of solute in moles per litre of solution.</div>
+
+      <div class="row" id="massMwRow">
+        <div><label>Solute mass <span class="hint">(g)</span><input id="mass" type="number" step="any" placeholder="5.00" /></label></div>
+        <div><label>Molar mass (g/mol)<input id="mw" type="number" step="any" placeholder="58.44 (NaCl)" /></label></div>
+      </div>
+
+      <div class="row">
+        <div id="solutionVolumeBox"><label>Solution volume <span class="hint">(L)</span><input id="volL" type="number" step="any" placeholder="0.250" /></label></div>
+        <div id="solventMassBox"><label>Solvent mass <span class="hint">(kg)</span><input id="solventKg" type="number" step="any" placeholder="0.200" /></label></div>
+      </div>
+      <div class="row">
+        <div id="equivalentFactorBox"><label>Equivalent factor n <span class="hint">(for Normality)</span><input id="eqFactor" type="number" step="any" placeholder="1 for HCl, 2 for H2SO4" /></label></div>
+        <div id="densityBox"><label>Solution density <span class="hint">(optional, g/mL)</span><input id="density" type="number" step="any" placeholder="≈1.000" /></label></div>
+      </div>
+      <div class="flex">
+        <button class="btn primary" onclick="computeAll()">Calculate</button>
+        <button class="btn" onclick="clearCalc()">Clear</button>
+      </div>
+      <div class="callout"><div id="calcOut" class="mono">Enter inputs and click <b>Compute All</b>.</div></div>
+
+      <h3 style="margin-top:12px">Display / Convert Units</h3>
+      <div class="row">
+        <div><label>Choose output extra units
+          <select id="extraUnits">
+            <option value="none">— none —</option><option value="mgL">mg/L</option><option value="ugL">µg/L</option><option value="mgkg">mg/kg</option>
+          </select></label>
+        </div>
+        <div><label>Assume density for mg/kg <span class="hint">(kg/L)</span><input id="rhoForMgkg" type="number" step="any" placeholder="1.000" /></label></div>
+      </div>
+      <div class="callout"><div id="unitOut" class="mono"></div></div>
+      
+      <h3 style="margin-top:12px">Quick Conversions (step‑by‑step)</h3>
+      <div class="row">
+        <div>
+          <label>Conversion
+            <select id="qcType" onchange="configureQuickConv()">
+              <option value="M_to_gL">M → g/L</option>
+              <option value="gL_to_mgL">g/L → mg/L</option>
+              <option value="mgL_to_ugL">mg/L → µg/L</option>
+              <option value="mgL_to_ppm">mg/L → ppm</option>
+              <option value="ugL_to_ppb">µg/L → ppb</option>
+            </select>
+          </label>
+        </div>
+        <div id="qcMWBox">
+          <label id="qcLabelMW">Molar mass (g/mol)
+            <input id="qcMW" type="number" step="any" placeholder="e.g., 159.61 (CuSO₄)" />
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label id="qcLabelA">Value
+            <input id="qcValA" type="number" step="any" placeholder="Enter value" />
+          </label>
+        </div>
+        <div>
+          <label id="qcLabelB" style="display:none">
+            <input id="qcValB" type="number" step="any" />
+          </label>
+        </div>
+      </div>
+      <div class="flex">
+        <button class="btn primary" onclick="runQuickConv()">Convert</button>
+        <button class="btn" onclick="clearQuickConv()">Clear</button>
+      </div>
+      <div class="callout"><div id="qcOut" class="mono"></div></div>
+
+    </div>
+
+    <!-- PREPARATION WIZARD -->
+    <div id="panel-prep" class="panel" role="tabpanel" aria-labelledby="tab-prep">
+      <h2>Preparation Wizard (Solid & Liquid)</h2>
+      <label>Target concentration type
+        <select id="prepType">
+          <option value="M">Molarity (M)</option><option value="N">Normality (N)</option>
+          <option value="F">Formality (F)</option><option value="m">Molality (m)</option>
+        </select>
+      </label>
+      <div class="row">
+        <div><label>Target value<input id="prepValue" type="number" step="any" placeholder="0.100" /></label></div>
+        <div><label>Final solution volume (L) <span class="hint">(for M, N, F)</span><input id="prepVolL" type="number" step="any" placeholder="1.000" /></label></div>
+      </div>
+      <div class="row">
+        <div><label>Molar mass (g/mol)<input id="prepMW" type="number" step="any" placeholder="98.08 (H2SO4)" /></label></div>
+        <div><label>Equivalent factor n <span class="hint">(for N)</span><input id="prepN" type="number" step="any" placeholder="2 for H2SO4" /></label></div>
+      </div>
+      <div class="row">
+        <div><label>Physical form
+          <select id="prepForm"><option value="solid">Solid (pure)</option><option value="liquid">Liquid (concentrated stock)</option></select>
+        </label></div>
+        <div><label>For molality: solvent mass (kg)<input id="prepSolvKg" type="number" step="any" placeholder="0.500" /></label></div>
+      </div>
+
+      <div id="liquidBox" class="callout" style="display:none">
+        <div class="row">
+          <div><label>Purity basis
+            <select id="purBasis"><option value="w_w">% w/w</option><option value="w_v">% w/v</option><option value="v_v">% v/v</option></select></label></div>
+          <div><label>Purity (%)<input id="purPct" type="number" step="any" placeholder="37 for HCl" /></label></div>
+        </div>
+        <div class="row">
+          <div><label>Stock solution density (g/mL) <span class="hint">(for %w/w)</span><input id="rhoStock" type="number" step="any" placeholder="1.19 for 37% HCl" /></label></div>
+          <div><label>Solute density (g/mL) <span class="hint">(for %v/v)</span><input id="rhoSolute" type="number" step="any" placeholder="if %v/v" /></label></div>
+        </div>
+        <div class="hint">Compute M<sub>stock</sub> from % and density, then use C1V1=C2V2.</div>
+      </div>
+
+      <div class="flex">
+        <button class="btn primary" onclick="prepFromSolid()">From Solid</button>
+        <button class="btn good" onclick="prepFromLiquid()">From Liquid</button>
+        <button class="btn" onclick="prepFromStock()">From Stock</button>
+        <button class="btn" onclick="clearPrep()">Clear</button>
+      </div>
+      <div class="callout"><div id="prepOut" class="mono">Choose approach to compute steps.</div></div>
+
+      <h3>Express Target in Practical Units</h3>
+      <div class="row">
+        <div><label>Convert target to mg/L, µg/L, mg/kg</label><button class="btn" onclick="convertTargetUnits()">Convert</button></div>
+        <div><label>Assume density (kg/L) for mg/kg<input id="convRho" type="number" step="any" placeholder="1.000" /></label></div>
+      </div>
+      <div class="callout"><div id="prepUnitOut" class="mono"></div></div>
+
+      <div class="row">
+        <div><label>Stock concentration C1 <span class="hint">(same units as target)</span><input id="prepStock" type="number" step="any" placeholder="1.000 (M or N or F)" /></label></div>
+        <div><div class="hint">Use “From Stock” with C1 set.</div></div>
+      </div>
+
+      <!-- Percent → Molarity (Stock Solver) -->
+      <div class="callout" id="stockSolver">
+        <h3 style="margin:6px 0 8px 0">Percent → Molarity (Stock Solver)</h3>
+        <div class="row">
+          <div><label>Analyte molar mass (g/mol)<input id="stkMW" type="number" step="any" placeholder="17.031 for NH₃" /></label></div>
+          <div><label>Percent value (%)<input id="stkPct" type="number" step="any" placeholder="28.0" /></label></div>
+        </div>
+        <div class="row">
+          <div><label>Percent basis
+            <select id="stkBasis"><option value="w_w">% w/w</option><option value="w_v">% w/v</option><option value="v_v">% v/v</option></select></label></div>
+          <div><label>ρ(solution) (g/mL) <span class="hint">(for %w/w)</span><input id="stkRhoSoln" type="number" step="any" placeholder="0.898 for NH₃(aq)" /></label></div>
+        </div>
+        <div class="row">
+          <div><label>ρ(solute) (g/mL) <span class="hint">(for %v/v)</span><input id="stkRhoSolute" type="number" step="any" placeholder="for %v/v only" /></label></div>
+          <div style="display:flex;align-items:flex-end;gap:8px">
+            <button class="btn primary" onclick="computeStockMolarity()">Compute M<sub>stock</sub></button>
+            <button class="btn" onclick="document.getElementById('stockMOut').innerHTML=''">Clear</button>
+          </div>
+        </div>
+        <div class="callout"><div id="stockMOut" class="mono"></div></div>
+      </div>
+    </div>
+
+    <!-- SERIAL STANDARDS -->
+    <div id="panel-series" class="panel" role="tabpanel" aria-labelledby="tab-series">
+      <h2>Serial Standards (Dilution Series)</h2>
+      <div class="row">
+        <div><label>Stock concentration (any unit)<input id="serStock" type="number" step="any" placeholder="100" /></label></div>
+        <div><label>Final volume per standard (mL)<input id="serVol" type="number" step="any" placeholder="50" /></label></div>
+      </div>
+      <div class="row">
+        <div><label>Number of standards<input id="serN" type="number" step="1" value="5" /></label></div>
+        <div><label>Mode<select id="serMode"><option value="increment">Equal increments</option><option value="serial">Serial factor</option></select></label></div>
+      </div>
+      <div class="row">
+        <div><label>Target last standard concentration<input id="serLast" type="number" step="any" placeholder="10 (for increments)" /></label></div>
+        <div><label>Serial factor <span class="hint">(e.g., 2, 10)</span><input id="serFactor" type="number" step="any" placeholder="10" /></label></div>
+      </div>
+      <div class="flex">
+        <button class="btn primary" onclick="buildSeries()">Generate Table</button>
+        <button class="btn" onclick="exportSeries()">Export CSV</button>
+      </div>
+      <div id="serOut" class="grid"></div>
+      <div class="hint">For each standard: pipette V<sub>stock</sub> and dilute to final volume.</div>
+    </div>
+
+    <!-- CALIBRATION -->
+    <div id="panel-calibration" class="panel" role="tabpanel" aria-labelledby="tab-calibration">
+      <h2>Calibration & Unknown</h2>
+      <div class="hint">Enter concentrations (x) and response (y). Fit y = a·x + b.</div>
+      <div class="grid"><table id="calibTable"><thead><tr><th>#</th><th>Conc (x)</th><th>Response (y)</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="flex">
+        <button class="btn" onclick="addCalibRow()">Add row</button>
+        <button class="btn bad" onclick="clearCalib()">Clear</button>
+        <button class="btn primary" onclick="fitCalib()">Fit</button>
+      </div>
+      <div class="kpi">
+        <div class="card"><h4>Slope (a)</h4><div id="slope" class="value mono">—</div></div>
+        <div class="card"><h4>Intercept (b)</h4><div id="intercept" class="value mono">—</div></div>
+        <div class="card"><h4>R²</h4><div id="r2" class="value mono">—</div></div>
+        <div class="card"><h4>Unknown conc</h4><div id="unkC" class="value mono">—</div></div>
+      </div>
+      <div class="row">
+        <div><label>Unknown response (y<sub>u</sub>)<input id="yUnknown" type="number" step="any" /></label></div>
+        <div class="flex" style="align-items:flex-end;"><button class="btn good" onclick="solveUnknown()">Solve Unknown</button></div>
+      </div>
+      <canvas id="calibPlot"></canvas>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="panel-quiz" class="panel" role="tabpanel" aria-labelledby="tab-quiz">
+      <h2>Quiz Mode</h2>
+      <div class="callout mono" id="quizQ">Click <b>New Question</b> to begin.</div>
+      <div class="row">
+        <div><label>Your answer<input id="quizAns" type="number" step="any" /></label></div>
+        <div><label>Units (if any)<input id="quizUnits" type="text" placeholder="e.g., M, m, N" /></label></div>
+      </div>
+      <div class="flex">
+        <button class="btn primary" onclick="newQuiz()">New Question</button>
+        <button class="btn good" onclick="checkQuiz()">Check</button>
+        <button class="btn" onclick="showQuizSteps()">Show steps</button>
+      </div>
+      <div id="quizResult" class="hint"></div>
+      <div id="quizSteps" class="callout mono"></div>
+    </div>
+
+    <div class="footer">Mulungushi University SNAS — Created by Mr Tembo ZN </div>
+  </section>
+
+  <section class="right">
+    <div class="results-heading">
+      <h3>Results & Steps</h3>
+      <button class="btn bad results-clear-btn" type="button" onclick="clearResults()">Clear</button>
+    </div>
+    <div id="log" class="mono" style="white-space:pre-wrap;min-height:60vh;background:#ffffff;border:1px solid #d7dfec;border-radius:12px;padding:10px"></div>
+  </section>
+</div>
+
+<script>
+// ====== Tabs ======
+const tabList = [
+  {id:'calculator',label:'Calculator'},
+  {id:'prep',label:'Preparation'},
+  {id:'series',label:'Serial Standards'},
+  {id:'calibration',label:'Calibration'},
+  {id:'quiz',label:'Quiz'}
+];
+const tabsEl = document.getElementById('tabs');
+tabList.forEach((t,i)=>{
+  const b = document.createElement('button');
+  b.id = 'tab-'+t.id; b.type='button'; b.setAttribute('role','tab');
+  b.setAttribute('aria-controls','panel-'+t.id); b.setAttribute('aria-selected', i===0 ? 'true' : 'false');
+  b.textContent = t.label;
+  b.className = 'tab' + (i===0?' active':'');
+  b.onclick = ()=>activateTab(t.id);
+  tabsEl.appendChild(b);
+});
+function activateTab(id){
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    const active = tabList[i].id===id;
+    el.classList.toggle('active', active);
+    el.setAttribute('aria-selected', active?'true':'false');
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+// ====== Utilities ======
+const logEl = document.getElementById('log');
+
+
+function escapeHTML(value){
+  return String(value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+function eqUnit(unit){
+  const safe = escapeHTML(unit)
+    .replace(/^ug$/,'µg')
+    .replace(/^umol$/,'µmol');
+  return `<span class="eq-unit">${safe}</span>`;
+}
+
+function eqQuantity(value, unit){
+  return `<span>${escapeHTML(value)}</span> ${eqUnit(unit)}`;
+}
+
+function eqFraction(numerator, denominator){
+  return `<span class="eq-frac"><span class="eq-num">${numerator}</span><span class="eq-den">${denominator}</span></span>`;
+}
+
+function equationLine(content, finalAnswer=false){
+  return `<div class="equation-line${finalAnswer?' final-answer':''}">${content}</div>`;
+}
+
+function formatChemicalFormula(formula){
+  // Render hydrate coefficients at normal text height while keeping atom counts as subscripts.
+  // Examples: CuSO4.5H2O and CuSO4·5H2O both display as CuSO₄·5H₂O.
+  const parts = String(formula).trim().split(/[·.]/);
+  return parts.map((part, index)=>{
+    const cleaned = part.trim();
+    const match = cleaned.match(/^(\d+)?(.*)$/);
+    const coefficient = index > 0 && match && match[1] ? escapeHTML(match[1]) : '';
+    const chemicalPart = match ? match[2] : cleaned;
+    const formattedChemicalPart = escapeHTML(chemicalPart).replace(/(\d+)/g,'<sub>$1</sub>');
+    return coefficient + formattedChemicalPart;
+  }).join('<span class="hydrate-dot">·</span>');
+}
+
+function renderOperatorsSafely(text){
+  return String(text).split(/([=×÷+])/).map(part=>{
+    if(/^[=×÷+]$/.test(part)) return `<span class="eq-op">${part}</span>`;
+    return escapeHTML(part);
+  }).join('');
+}
+
+function renderEquationLine(rawLine){
+  const s = String(rawLine).trim();
+  if(!s) return '';
+
+  let m;
+
+  // Chemical formula heading.
+  m = s.match(/^Formula:\s*(.+)$/i);
+  if(m){
+    return equationLine(
+      `<span class="eq-text-label">Formula:</span>` +
+      `<span class="eq-formula">${formatChemicalFormula(m[1])}</span>`
+    );
+  }
+
+  // Atomic-mass breakdown, e.g. Na2×22.9898 + O4×15.9994 + W×183.8400.
+  m = s.match(/^Breakdown:\s*(.+)$/i);
+  if(m){
+    const terms = m[1].split(/\s*\+\s*/).map(term=>{
+      const t = term.match(/^([A-Z][a-z]?)(\d*)×([0-9.]+)$/);
+      if(!t) return renderOperatorsSafely(term);
+      const count = t[2] || '1';
+      const species = `<span class="eq-formula">${escapeHTML(t[1])}${t[2]?`<sub>${escapeHTML(t[2])}</sub>`:''}</span>`;
+      return `${species}<span class="eq-op">×</span><span>${escapeHTML(t[3])}</span>`;
+    });
+    return equationLine(
+      `<span class="eq-text-label">Breakdown:</span>` +
+      terms.join('<span class="eq-op">+</span>')
+    );
+  }
+
+  // n = m ÷ M = 2.00 g ÷ 100.09 g/mol
+  m = s.match(/^n\s*=\s*m\s*÷\s*M\s*=\s*([^\s]+)\s+g\s*÷\s*([^\s]+)\s+g\/mol$/i);
+  if(m){
+    return equationLine(
+      `<span class="eq-var">n</span><span class="eq-op">=</span>` +
+      eqFraction(`<span class="eq-var">m</span>`, `<span class="eq-var">M</span>`) +
+      `<span class="eq-op">=</span>` +
+      eqFraction(eqQuantity(m[1],'g'), eqQuantity(m[2],'g/mol'))
+    );
+  }
+
+  // M = m ÷ n = 2.00 g ÷ 0.01998 mol
+  m = s.match(/^M\s*=\s*m\s*÷\s*n\s*=\s*([^\s]+)\s+g\s*÷\s*([^\s]+)\s+mol$/i);
+  if(m){
+    return equationLine(
+      `<span class="eq-var">M</span><span class="eq-op">=</span>` +
+      eqFraction(`<span class="eq-var">m</span>`, `<span class="eq-var">n</span>`) +
+      `<span class="eq-op">=</span>` +
+      eqFraction(eqQuantity(m[1],'g'), eqQuantity(m[2],'mol'))
+    );
+  }
+
+  // m = n × M = 0.235 mol × 100 g/mol
+  m = s.match(/^m\s*=\s*n\s*×\s*M\s*=\s*([^\s]+)\s+mol\s*×\s*([^\s]+)\s+g\/mol$/i);
+  if(m){
+    return equationLine(
+      `<span class="eq-var">m</span><span class="eq-op">=</span>` +
+      `<span class="eq-var">nM</span><span class="eq-op">=</span>` +
+      eqQuantity(m[1],'mol') + `<span class="eq-op">×</span>` + eqQuantity(m[2],'g/mol')
+    );
+  }
+
+  // Conversion statements, e.g. n = 235 mmol = 0.235 mol
+  m = s.match(/^([mnM])\s*=\s*([^\s]+)\s+([^\s]+)\s*=\s*([^\s]+)\s+([^\s]+)$/);
+  if(m){
+    return equationLine(
+      `<span class="eq-var">${escapeHTML(m[1])}</span><span class="eq-op">=</span>` +
+      eqQuantity(m[2],m[3]) + `<span class="eq-op">=</span>` + eqQuantity(m[4],m[5])
+    );
+  }
+
+  // Final answer statements.
+  m = s.match(/^(Mass|Amount of substance|Molar mass)\s*=\s*([^\s]+)\s+(.+)$/i);
+  if(m){
+    const symbol = /^Mass$/i.test(m[1]) ? 'm' : /^Molar mass$/i.test(m[1]) ? 'M' : 'n';
+    return equationLine(
+      `<span class="eq-var">${symbol}</span><span class="eq-op">=</span>${eqQuantity(m[2],m[3])}`,
+      true
+    );
+  }
+
+  // Moles = mass / molar mass = result mol
+  m = s.match(/^Moles\s*=\s*([^\s]+)\s*\/\s*([^\s]+)\s*=\s*([^\s]+)\s+mol$/i);
+  if(m){
+    return equationLine(
+      `<span class="eq-var">n</span><span class="eq-op">=</span>` +
+      eqFraction(eqQuantity(m[1],'g'), eqQuantity(m[2],'g/mol')) +
+      `<span class="eq-op">=</span>${eqQuantity(m[3],'mol')}`,
+      true
+    );
+  }
+
+  // Generic readable fallback. Insert operator markup without altering HTML attributes.
+  if(/[=×÷+]/.test(s)){
+    return equationLine(renderOperatorsSafely(s));
+  }
+
+  return `<div class="equation-label">${escapeHTML(s)}</div>`;
+}
+
+function log(msg){
+  // Keep each completed calculation so students can review the full sequence.
+  // Supports both real newline characters and legacy literal "\\n" strings.
+  const raw = String(msg ?? '').trim();
+  if(!raw) return;
+  const lines = raw.split(/\\n|\n/);
+  const calculationHTML = lines.map(renderEquationLine).join('');
+  const block = document.createElement('div');
+  block.className = 'calculation-history-block';
+  block.innerHTML = calculationHTML;
+  logEl.appendChild(block);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearResults(){
+  logEl.innerHTML='';
+}
+
+function fmt(x,dp=4){ if (!isFinite(x)) return '—'; return (+x).toFixed(dp); }
+function val(id){ const el=document.getElementById(id); if(!el) return NaN; const v = parseFloat(el.value); return isFinite(v)?v:NaN; }
+function setOut(id, txt){ const el=document.getElementById(id); if(el) el.innerHTML = txt; }
+
+// ====== NEW: Molar Mass from Formula ======
+const ELEMENT_MW = {
+  H:1.00794, He:4.0026,
+  Li:6.941, Be:9.01218, B:10.811, C:12.0107, N:14.0067, O:15.9994, F:18.9984, Ne:20.1797,
+  Na:22.98977, Mg:24.305, Al:26.98154, Si:28.0855, P:30.97376, S:32.065, Cl:35.453, Ar:39.948,
+  K:39.0983, Ca:40.078, Sc:44.9559, Ti:47.867, V:50.9415, Cr:51.9961, Mn:54.938, Fe:55.845, Co:58.933, Ni:58.6934, Cu:63.546, Zn:65.38,
+  Ga:69.723, Ge:72.64, As:74.9216, Se:78.96, Br:79.904, Kr:83.798,
+  Rb:85.4678, Sr:87.62, Y:88.9059, Zr:91.224, Nb:92.906, Mo:95.94, Tc:98.0, Ru:101.07, Rh:102.9055, Pd:106.42, Ag:107.8682, Cd:112.411,
+  In:114.818, Sn:118.71, Sb:121.76, Te:127.6, I:126.90447, Xe:131.293,
+  Cs:132.905, Ba:137.327, La:138.905, Ce:140.116, Pr:140.908, Nd:144.24, Sm:150.36, Eu:151.964, Gd:157.25, Tb:158.925, Dy:162.5, Ho:164.93, Er:167.259, Tm:168.934, Yb:173.054, Lu:174.967,
+  Hf:178.49, Ta:180.948, W:183.84, Re:186.207, Os:190.23, Ir:192.217, Pt:195.084, Au:196.96657, Hg:200.59,
+  Tl:204.3833, Pb:207.2, Bi:208.980, Po:209, At:210, Rn:222,
+  Fr:223, Ra:226, Ac:227, Th:232.038, Pa:231.036, U:238.02891
+};
+
+function tokenizeFormula(formula){
+  const tokens = [];
+  let i=0;
+  while(i<formula.length){
+    const ch = formula[i];
+    if(ch===' '){ i++; continue; }
+    if(ch==='·' || ch==='.' ){ tokens.push({type:'dot'}); i++; continue; }
+    if(ch==='(' || ch===')'){ tokens.push({type:ch}); i++; continue; }
+    if(/[A-Z]/.test(ch)){
+      let sym = ch; i++;
+      if(i<formula.length && /[a-z]/.test(formula[i])){ sym += formula[i]; i++; }
+      tokens.push({type:'elem', value:sym});
+      continue;
+    }
+    if(/[0-9]/.test(ch)){
+      let num = ch; i++;
+      while(i<formula.length && /[0-9]/.test(formula[i])){ num += formula[i]; i++; }
+      tokens.push({type:'num', value:parseInt(num,10)});
+      continue;
+    }
+    // ignore charge and miscellaneous characters
+    i++;
+  }
+  return tokens;
+}
+
+function parseTokens(tokens, start=0){
+  // returns {mass, counts, idx}
+  let mass = 0;
+  let counts = {};
+  let i = start;
+  function addCounts(map, mult){
+    for(const k in map){ counts[k] = (counts[k]||0) + map[k]*mult; }
+  }
+  while(i<tokens.length){
+    const t = tokens[i];
+    if(t.type==='elem'){
+      const sym = t.value;
+      const next = tokens[i+1];
+      const n = (next && next.type==='num') ? next.value : 1;
+      if(next && next.type==='num') i++;
+      if(!(sym in ELEMENT_MW)) throw new Error('Unknown element: '+sym);
+      mass += ELEMENT_MW[sym]*n;
+      counts[sym] = (counts[sym]||0) + n;
+    }else if(t.type==='('){
+      const inner = parseTokens(tokens, i+1);
+      i = inner.idx;
+      const next = tokens[i+1];
+      const mult = (next && next.type==='num') ? next.value : 1;
+      if(next && next.type==='num') i++;
+      mass += inner.mass*mult;
+      addCounts(inner.counts, mult);
+    }else if(t.type===')'){
+      return {mass, counts, idx:i};
+    }else if(t.type==='dot'){
+      // Handle hydrates such as CuSO4·5H2O or CaSO4.7(H2O).
+      // A number immediately after the hydrate separator multiplies
+      // the entire hydrate group that follows.
+      let hydrateMultiplier = 1;
+      let hydrateStart = i + 1;
+      if(tokens[hydrateStart] && tokens[hydrateStart].type === 'num'){
+        hydrateMultiplier = tokens[hydrateStart].value;
+        hydrateStart++;
+      }
+      const rest = parseTokens(tokens, hydrateStart);
+      mass += rest.mass * hydrateMultiplier;
+      addCounts(rest.counts, hydrateMultiplier);
+      return {mass, counts, idx:rest.idx};
+    }else{
+      // end
+    }
+    i++;
+  }
+  return {mass, counts, idx:i};
+}
+
+function computeMWFromFormula(){
+  const f = (document.getElementById('formula').value || '').trim();
+  if(!f){ setOut('mwOut', 'Enter a chemical formula, e.g., CuSO4·5H2O'); return; }
+  try{
+    const tokens = tokenizeFormula(f);
+    const res = parseTokens(tokens, 0);
+    const mw = res.mass;
+    document.getElementById('mw').value = mw.toFixed(4);
+    // Build breakdown text
+    const parts = Object.keys(res.counts).sort().map(k=>`${k}${res.counts[k]===1?'':res.counts[k]}×${ELEMENT_MW[k].toFixed(4)}`).join(' + ');
+    const lines = [
+      `Formula: ${f}`,
+      parts ? `Breakdown: ${parts}` : '',
+      `Molar mass = ${mw.toFixed(4)} g/mol`
+    ].filter(Boolean).join('\\n');
+    const formulaDisplay = formatChemicalFormula(f);
+    const mwOutHtml = [
+      `<span class="mw-label">Formula:</span> <span class="eq-formula">${formulaDisplay}</span>`,
+      parts ? `<span class="mw-label">Breakdown:</span> ${escapeHTML(parts)}` : '',
+      `<span class="mw-label">Molar mass =</span> ${mw.toFixed(4)} g/mol`
+    ].filter(Boolean).join('<br>');
+    setOut('mwOut', mwOutHtml);
+    log(lines);
+  }catch(e){
+    setOut('mwOut', '⚠️ ' + e.message);
+  }
+}
+
+// ====== Mass, Amount and Molar Mass Solver ======
+function configureMMASolver(){
+  const solveFor=document.getElementById('mmaSolveFor').value;
+  document.getElementById('mmaMassBox').style.display=solveFor==='mass'?'none':'block';
+  document.getElementById('mmaMolesBox').style.display=solveFor==='moles'?'none':'block';
+  document.getElementById('mmaMolarMassBox').style.display=solveFor==='molarMass'?'none':'block';
+  const u=document.getElementById('mmaAnswerUnit');
+  if(solveFor==='mass') u.innerHTML='<option value="g">g</option><option value="mg">mg</option><option value="ug">µg</option>';
+  else if(solveFor==='moles') u.innerHTML='<option value="mol">mol</option><option value="mmol">mmol</option><option value="umol">µmol</option>';
+  else u.innerHTML='<option value="g/mol">g/mol</option>';
+  setOut('mmaOut','');
+}
+function mmaMassToG(v,u){return u==='g'?v:u==='mg'?v/1e3:u==='ug'?v/1e6:NaN}
+function mmaGToMass(v,u){return u==='g'?v:u==='mg'?v*1e3:u==='ug'?v*1e6:NaN}
+function mmaAmountToMol(v,u){return u==='mol'?v:u==='mmol'?v/1e3:u==='umol'?v/1e6:NaN}
+function mmaMolToAmount(v,u){return u==='mol'?v:u==='mmol'?v*1e3:u==='umol'?v*1e6:NaN}
+function mmaNum(v){
+  if(!isFinite(v)) return '—';
+  const a=Math.abs(v);
+  return a!==0&&(a>=1e6||a<1e-4)?v.toExponential(6):Number(v.toPrecision(8)).toString();
+}
+function solveMassMolesMolarMass(){
+  const target=document.getElementById('mmaSolveFor').value;
+  const outUnit=document.getElementById('mmaAnswerUnit').value;
+  const mv=val('mmaMass'), nv=val('mmaMoles'), M=val('mmaMolarMass');
+  const mu=document.getElementById('mmaMassUnit').value;
+  const nu=document.getElementById('mmaMolesUnit').value;
+  let s=[];
+  if(target==='mass'){
+    if(!isFinite(nv)||!isFinite(M)||nv<0||M<=0){setOut('mmaOut','Enter a valid amount of substance and molar mass.');return}
+    const n=mmaAmountToMol(nv,nu), g=n*M, ans=mmaGToMass(g,outUnit);
+    s=[`n = ${nv} ${nu==='umol'?'µmol':nu} = ${mmaNum(n)} mol`,`m = n × M = ${mmaNum(n)} mol × ${M} g/mol`,`Mass = ${mmaNum(ans)} ${outUnit==='ug'?'µg':outUnit}`];
+  }else if(target==='moles'){
+    if(!isFinite(mv)||!isFinite(M)||mv<0||M<=0){setOut('mmaOut','Enter a valid mass and molar mass.');return}
+    const g=mmaMassToG(mv,mu), n=g/M, ans=mmaMolToAmount(n,outUnit);
+    s=[`m = ${mv} ${mu==='ug'?'µg':mu} = ${mmaNum(g)} g`,`n = m ÷ M = ${mmaNum(g)} g ÷ ${M} g/mol`,`Amount of substance = ${mmaNum(ans)} ${outUnit==='umol'?'µmol':outUnit}`];
+  }else{
+    if(!isFinite(mv)||!isFinite(nv)||mv<0||nv<=0){setOut('mmaOut','Enter a valid mass and amount of substance.');return}
+    const g=mmaMassToG(mv,mu), n=mmaAmountToMol(nv,nu), ans=g/n;
+    s=[`m = ${mv} ${mu==='ug'?'µg':mu} = ${mmaNum(g)} g`,`n = ${nv} ${nu==='umol'?'µmol':nu} = ${mmaNum(n)} mol`,`M = m ÷ n = ${mmaNum(g)} g ÷ ${mmaNum(n)} mol`,`Molar mass = ${mmaNum(ans)} g/mol`];
+  }
+  setOut('mmaOut',s.join('<br>')); log(s.join('\n'));
+}
+function clearMMASolver(){
+  ['mmaMass','mmaMoles','mmaMolarMass'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mmaMassUnit').value='g';
+  document.getElementById('mmaMolesUnit').value='mol';
+  document.getElementById('mmaSolveFor').value='mass';
+  configureMMASolver();
+}
+
+// ====== Calculator ======
+function configureConcentrationCalculator(){
+  const type=document.getElementById('concentrationType').value;
+  const hints={
+    M:'Molarity is the amount of solute in moles per litre of solution.',
+    N:'Normality is the number of equivalents of solute per litre of solution.',
+    F:'Formality is the number of formula masses of solute per litre of solution.',
+    m:'Molality is the amount of solute in moles per kilogram of solvent.'
+  };
+  document.getElementById('concentrationTypeHint').textContent=hints[type];
+  document.getElementById('solutionVolumeBox').style.display=type==='m'?'none':'block';
+  document.getElementById('solventMassBox').style.display=type==='m'?'block':'none';
+  document.getElementById('equivalentFactorBox').style.display=type==='N'?'block':'none';
+  document.getElementById('densityBox').style.display=type==='m'?'block':'none';
+}
+
+function computeAll(){
+  const type=document.getElementById('concentrationType').value;
+  const mass=val('mass'), mw=val('mw'), volL=val('volL'), solventKg=val('solventKg'), factor=val('eqFactor'), density=val('density');
+  let out=[];
+  if(!isFinite(mass)||!isFinite(mw)||mw<=0){setOut('calcOut','Enter a valid solute mass and molar mass.');return;}
+  const moles=mass/mw;
+  out.push(`Moles = ${mass} / ${mw} = ${fmt(moles)} mol`);
+  if(type==='M'){
+    if(!isFinite(volL)||volL<=0){setOut('calcOut','Provide the solution volume in litres.');return;}
+    const result=moles/volL;
+    out.push(`M = ${fmt(moles)} / ${volL} = ${fmt(result)} mol/L`);
+  }else if(type==='N'){
+    if(!isFinite(volL)||volL<=0||!isFinite(factor)||factor<=0){setOut('calcOut','Provide the solution volume and equivalent factor n.');return;}
+    const result=(moles*factor)/volL;
+    out.push(`N = (${fmt(moles)} × ${factor}) / ${volL} = ${fmt(result)} eq/L`);
+  }else if(type==='F'){
+    if(!isFinite(volL)||volL<=0){setOut('calcOut','Provide the solution volume in litres.');return;}
+    const result=moles/volL;
+    out.push(`F = ${fmt(moles)} / ${volL} = ${fmt(result)} F`);
+  }else{
+    if(isFinite(solventKg)&&solventKg>0){
+      const result=moles/solventKg;
+      out.push(`m = ${fmt(moles)} / ${solventKg} = ${fmt(result)} mol/kg`);
+    }else if(isFinite(density)&&isFinite(volL)&&volL>0){
+      const totalMass_g=volL*1000*density;
+      const solvent_g=totalMass_g-mass;
+      if(solvent_g<=0){setOut('calcOut','The calculated solvent mass must be greater than zero.');return;}
+      const result=moles/(solvent_g/1000);
+      out.push(`Solvent mass = (${volL} × 1000 × ${density}) − ${mass} = ${fmt(solvent_g)} g`);
+      out.push(`m = ${fmt(moles)} / ${fmt(solvent_g/1000)} = ${fmt(result)} mol/kg`);
+    }else{
+      setOut('calcOut','Provide the solvent mass in kilograms.');return;
+    }
+  }
+  setOut('calcOut',out.join('<br>'));
+  log(out.join('\n'));
+  const extra=document.getElementById('extraUnits').value;
+  const rhoKgL=isFinite(val('rhoForMgkg'))?val('rhoForMgkg'):1.0;
+  if(type==='M'&&isFinite(volL)&&volL>0){
+    const M=moles/volL, mgL=M*mw*1000;
+    let convTxt=[];
+    if(extra==='mgL'||extra==='ugL'||extra==='mgkg'){
+      convTxt.push(`mg/L = ${fmt(mgL)}`);
+      if(extra==='ugL') convTxt.push(`µg/L = ${fmt(mgL*1000)}`);
+      if(extra==='mgkg') convTxt.push(`mg/kg ≈ ${fmt(mgL/(rhoKgL||1.0))}`);
+    }
+    setOut('unitOut',convTxt.join('<br>'));
+  }else setOut('unitOut','');
+}
+function clearCalc(){['mass','mw','volL','solventKg','eqFactor','density','rhoForMgkg','formula'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); setOut('calcOut','Cleared.'); setOut('unitOut',''); setOut('mwOut',''); log('');}
+
+// ====== Preparation Wizard (solid + liquid) ======
+function prepFromSolid(){
+  const type = document.getElementById('prepType').value, C = val('prepValue'), V = val('prepVolL'), MW = val('prepMW'), n = val('prepN'), msolv = val('prepSolvKg');
+  let s=[];
+  if(type==='m'){
+    if(isFinite(C)&&isFinite(msolv)&&isFinite(MW)){ const moles=C*msolv, g=moles*MW; s.push(`moles = m×kg = ${fmt(moles)}; mass = ${fmt(g)} g`); s.push(`Weigh ${fmt(g)} g; add solvent until solvent mass = ${msolv} kg.`); }
+    else s.push('Provide: target m, solvent mass (kg), MW.');
+  }else{
+    if(isFinite(C)&&isFinite(V)&&isFinite(MW)){
+      let mol; if(type==='M'||type==='F') mol=C*V; if(type==='N'){ if(!isFinite(n)){ setOut('prepOut','For Normality, provide n.'); return; } mol=(C*V)/n; }
+      const g=mol*MW; s.push(`moles = ${fmt(mol)}; mass = ${fmt(g)} g`); s.push(`Weigh ${fmt(g)} g; dissolve in a ${V} L flask and dilute to mark.`);
+    }else s.push('Provide: C, final volume (L), and MW (plus n for N).');
+  }
+  setOut('prepOut', s.join('<br>')); log(s.join('\n'));
+}
+function prepFromLiquid(){
+  const type=document.getElementById('prepType').value, C2=val('prepValue'), V2=val('prepVolL'), MW=val('prepMW'), n=val('prepN'), basis=document.getElementById('purBasis').value, pct=val('purPct'), rhoStock=val('rhoStock'), rhoSolute=val('rhoSolute');
+  let s=[]; if(!isFinite(C2)||!isFinite(V2)||!isFinite(MW)){ setOut('prepOut','Provide target (C), final volume (L), and MW.'); return; }
+  let Ms=NaN; if(!isFinite(pct)){ setOut('prepOut','Provide purity % of the liquid stock.'); return; }
+  if(basis==='w_w'){ if(!isFinite(rhoStock)){ setOut('prepOut','For %w/w provide stock density.'); return; } const gL=(pct/100)*rhoStock*1000; Ms=gL/MW; s.push(`%w/w: g/L=${fmt(gL)} ⇒ M_stock=${fmt(Ms)}`); }
+  else if(basis==='w_v'){ const gL=pct*10; Ms=gL/MW; s.push(`%w/v: g/L=${fmt(gL)} ⇒ M_stock=${fmt(Ms)}`); }
+  else{ if(!isFinite(rhoSolute)){ setOut('prepOut','For %v/v provide solute density.'); return; } const gL=(pct/100)*1000*rhoSolute; Ms=gL/MW; s.push(`%v/v: g/L=${fmt(gL)} ⇒ M_stock=${fmt(Ms)}`); }
+  let targetM=NaN; if(type==='M'||type==='F') targetM=C2; if(type==='N'){ if(!isFinite(n)){ setOut('prepOut','For Normality, provide n.'); return; } targetM=C2/n; s.push(`M_target=N/n=${fmt(targetM)}`); }
+  if(type==='m'){ setOut('prepOut','Use molality with solids; for liquids choose M/N/F.'); return; }
+  if(!(isFinite(Ms)&&Ms>0)){ setOut('prepOut','Could not compute stock molarity.'); return; }
+  const V1=(targetM*V2)/Ms; s.push(`C1V1=C2V2 ⇒ V1=${fmt(V1)} L = ${fmt(V1*1000,3)} mL`); s.push(`Pipette ${fmt(V1*1000,3)} mL stock and dilute to ${V2} L.`);
+  setOut('prepOut', s.join('<br>')); log(s.join('\n'));
+}
+function prepFromStock(){
+  const type=document.getElementById('prepType').value, C2=val('prepValue'), V2=val('prepVolL'), C1=val('prepStock'); let s=[];
+  if(['M','N','F'].includes(type)){ if(isFinite(C1)&&isFinite(C2)&&isFinite(V2)){ const V1=(C2*V2)/C1; s.push(`V1=(C2×V2)/C1 = ${fmt(V1)} L = ${fmt(V1*1000,3)} mL`); s.push(`Pipette ${fmt(V1*1000,3)} mL stock and dilute to ${V2} L.`);} else s.push('Provide C1, C2 and V2.'); } else s.push('Stock dilution applies to M, N, or F.');
+  setOut('prepOut', s.join('<br>')); log(s.join('\n'));
+}
+function clearPrep(){['prepValue','prepVolL','prepMW','prepN','prepSolvKg','prepStock','purPct','rhoStock','rhoSolute','convRho'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';}); setOut('prepOut','Cleared.'); setOut('prepUnitOut','');}
+document.addEventListener('DOMContentLoaded', ()=>{ const pf=document.getElementById('prepForm'); if(pf){ pf.addEventListener('change', e=>{ document.getElementById('liquidBox').style.display = e.target.value==='liquid' ? 'block' : 'none'; }); }});
+function convertTargetUnits(){
+  const type=document.getElementById('prepType').value, C=val('prepValue'), MW=val('prepMW'), n=val('prepN'), rho=isFinite(val('convRho'))?val('convRho'):1.0;
+  if(!isFinite(C)||!isFinite(MW)){ setOut('prepUnitOut','Provide target value and MW.'); return; }
+  let Mval=NaN; if(type==='M'||type==='F') Mval=C; else if(type==='N'){ if(!isFinite(n)){ setOut('prepUnitOut','Provide n for Normality.'); return; } Mval=C/n; } else { setOut('prepUnitOut','Molality→mg/L requires density/composition; use Calculator.'); return; }
+  const mgL=Mval*MW*1000, ugL=mgL*1000, mgkg=mgL/(rho||1.0); setOut('prepUnitOut', `mg/L = ${fmt(mgL)}\nµg/L = ${fmt(ugL)}\nmg/kg ≈ ${fmt(mgkg)} (ρ=${rho} kg/L)`);
+}
+
+// ====== Serial Standards ======
+let lastSeries=[];
+function buildSeries(){
+  const Cstock=val('serStock'), Vml=val('serVol'), N=parseInt(document.getElementById('serN').value,10), mode=document.getElementById('serMode').value, Clast=val('serLast'), factor=val('serFactor');
+  let rows=[]; if(!isFinite(Cstock)||!isFinite(Vml)||!isFinite(N)||N<1){ document.getElementById('serOut').innerHTML='<div class="callout">Provide stock, volume, and number of standards.</div>'; return; }
+  if(mode==='increment'){ if(!isFinite(Clast)){ document.getElementById('serOut').innerHTML='<div class="callout">Provide target last standard concentration.</div>'; return; } const step=(Clast-0)/N; for(let i=1;i<=N;i++){ const C=step*i; const Vstock=(C/Cstock)*(Vml/1000); rows.push({i,C,Vstock_mL:Vstock*1000,dil_mL:Vml - Vstock*1000}); } }
+  else{ if(!isFinite(factor)||factor<=1){ document.getElementById('serOut').innerHTML='<div class="callout">Provide a serial factor > 1.</div>'; return; } for(let i=1;i<=N;i++){ const C=Cstock/Math.pow(factor,i-1); const Vstock=(C/Cstock)*(Vml/1000); rows.push({i,C,Vstock_mL:Vstock*1000,dil_mL:Vml - Vstock*1000}); } }
+  lastSeries=rows; let html='<table><thead><tr><th>#</th><th>Conc</th><th>Stock (mL)</th><th>Diluent (mL)</th><th>Final (mL)</th></tr></thead><tbody>';
+  rows.forEach(r=>{ html += `<tr><td>${r.i}</td><td>${fmt(r.C,6)}</td><td>${fmt(r.Vstock_mL,3)}</td><td>${fmt(r.dil_mL,3)}</td><td>${fmt(r.Vstock_mL+r.dil_mL,3)}</td></tr>`; }); html+='</tbody></table>';
+  document.getElementById('serOut').innerHTML = html; log('Serial standards table generated.');
+}
+function exportSeries(){
+  if(!lastSeries.length){ alert('Generate the table first.'); return; }
+  let csv='Standard,Concentration,Stock_mL,Diluent_mL,Final_mL\n'; lastSeries.forEach(r=>{ csv+=`${r.i},${r.C},${r.Vstock_mL},${r.dil_mL},${r.Vstock_mL+r.dil_mL}\n`; });
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='dilution_series.csv'; a.click(); URL.revokeObjectURL(url);
+}
+
+// ====== Calibration ======
+const tbody=document.querySelector('#calibTable tbody');
+function addCalibRow(x='',y=''){ const tr=document.createElement('tr'); tr.innerHTML=`<td>${tbody.children.length+1}</td><td><input type="number" step="any" value="${x}"></td><td><input type="number" step="any" value="${y}"></td><td><button class="btn bad" onclick="this.closest('tr').remove(); renumber()">✕</button></td>`; tbody.appendChild(tr); }
+function renumber(){[...tbody.children].forEach((tr,i)=>tr.children[0].textContent=i+1)}
+function clearCalib(){ tbody.innerHTML=''; setOut('slope','—'); setOut('intercept','—'); setOut('r2','—'); setOut('unkC','—'); drawCalib([]); }
+function getXY(){ let xs=[],ys=[]; [...tbody.children].forEach(tr=>{ const x=parseFloat(tr.children[1].querySelector('input').value); const y=parseFloat(tr.children[2].querySelector('input').value); if(isFinite(x)&&isFinite(y)){ xs.push(x); ys.push(y); } }); return {xs,ys}; }
+function fitCalib(){
+  const {xs,ys}=getXY(); if(xs.length<2){ alert('Enter at least two standards.'); return; }
+  const n=xs.length, sumx=xs.reduce((a,b)=>a+b,0), sumy=ys.reduce((a,b)=>a+b,0), sumxy=xs.reduce((a,b,i)=>a+b*ys[i],0), sumx2=xs.reduce((a,b)=>a+b*b,0);
+  const denom=n*sumx2 - sumx*sumx; const a=(n*sumxy - sumx*sumy)/denom; const b=(sumy - a*sumx)/n;
+  const yhat=xs.map(x=>a*x+b); const ssres=ys.reduce((acc,y,i)=>acc+(y-yhat[i])**2,0); const sstot=ys.reduce((acc,y)=>acc+(y-sumy/n)**2,0); const r2=1-ssres/sstot;
+  setOut('slope',fmt(a,6)); setOut('intercept',fmt(b,6)); setOut('r2',fmt(r2,6)); drawCalib(xs.map((x,i)=>({x,y:ys[i]})), a, b); log(`Calibration fit:\na=${a}\nb=${b}\nR^2=${r2}`); return {a,b,r2};
+}
+function solveUnknown(){ const y=parseFloat(document.getElementById('yUnknown').value); if(!isFinite(y)){ alert('Enter unknown response y.'); return; } if(document.getElementById('slope').textContent==='—'){ fitCalib(); } const a=parseFloat(document.getElementById('slope').textContent); const b=parseFloat(document.getElementById('intercept').textContent); const x=(y-b)/a; setOut('unkC', fmt(x,6)); log(`Unknown: x=(y-b)/a = (${y}-${b})/${a} = ${x}`); }
+function drawCalib(points=[],a=null,b=null){
+  const cv=document.getElementById('calibPlot'), ctx=cv.getContext('2d'), W=cv.clientWidth, H=cv.clientHeight; const ratio=window.devicePixelRatio||1; cv.width=W*ratio; cv.height=H*ratio; ctx.scale(ratio,ratio);
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1; for(let i=0;i<10;i++){ let y=(i+1)*H/11; ctx.beginPath(); ctx.moveTo(8,y); ctx.lineTo(W-8,y); ctx.stroke(); }
+  if(!points.length) return; const xs=points.map(p=>p.x), ys=points.map(p=>p.y); const xmin=Math.min(...xs), xmax=Math.max(...xs), ymin=Math.min(...ys), ymax=Math.max(...ys); const pad=24;
+  const xmap=x=>pad + (x - xmin) / (xmax - xmin || 1) * (W - 2*pad); const ymap=y=>H - pad - (y - ymin) / (ymax - ymin || 1) * (H - 2*pad);
+  ctx.fillStyle='#0b53d6'; points.forEach(p=>{ ctx.beginPath(); ctx.arc(xmap(p.x), ymap(p.y), 3, 0, Math.PI*2); ctx.fill(); });
+  if(a!==null&&b!==null){ const x1=xmin, y1=a*x1+b, x2=xmax, y2=a*x2+b; ctx.strokeStyle='#ea580c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(xmap(x1), ymap(y1)); ctx.lineTo(xmap(x2), ymap(y2)); ctx.stroke(); }
+}
+
+// Seed calibration rows
+addCalibRow(); addCalibRow(); addCalibRow();
+
+// ====== QUIZ ======
+const QUIZ_BANK=[
+  {q:'Weigh 5.00 g NaCl (MW 58.44) to 250.0 mL. What is M?', ans:()=> (5.00/58.44)/0.250, units:'M', steps:'M = (5/58.44)/0.250'},
+  {q:'Weigh 2.00 g urea (MW 60.06) into 0.200 kg water. What is m?', ans:()=> (2.00/60.06)/0.200, units:'m', steps:'m = (2/60.06)/0.200'},
+  {q:'Make 0.100 N H2SO4 in 1.000 L (n=2). How many g (MW 98.08)?', ans:()=> ((0.100*1.000)/2)*98.08, units:'g', steps:'mol = N·L/n; g = mol·MW'},
+  {q:'37% w/w HCl (ρ=1.19 g/mL). What is M (MW 36.46)?', ans:()=> (0.37*1.19*1000)/36.46, units:'M', steps:'g/L=(%/100)·ρ·1000; M=g/L ÷ MW'},
+  {q:'From 12.0 M HCl make 0.500 L of 1.00 M. What mL of stock?', ans:()=> (1.00*0.500)/12.0*1000, units:'mL', steps:'V1=(C2·V2)/C1'},
+  {q:'0.0500 M CuSO4 (MW 159.61) in mg/L?', ans:()=> 0.0500*159.61*1000, units:'mg/L', steps:'mg/L=M·MW·1000'},
+  {q:'Calibration y=2.50x+0.10; y_u=3.60. What is x?', ans:()=> (3.60-0.10)/2.50, units:'(x units)', steps:'x=(y-b)/a'}
+];
+let currentQuiz=null;
+function newQuiz(){ currentQuiz=QUIZ_BANK[Math.floor(Math.random()*QUIZ_BANK.length)]; document.getElementById('quizQ').textContent=currentQuiz.q; document.getElementById('quizAns').value=''; document.getElementById('quizUnits').value=''; document.getElementById('quizResult').textContent=''; document.getElementById('quizSteps').textContent=''; }
+function checkQuiz(){ if(!currentQuiz){ document.getElementById('quizResult').textContent='Click New Question first.'; return; } const ans=parseFloat(document.getElementById('quizAns').value); const userUnits=(document.getElementById('quizUnits').value||'').trim(); const correct=currentQuiz.ans(); const ok=isFinite(ans)&&Math.abs(ans-correct)<=Math.max(1e-3, Math.abs(correct)*0.01); document.getElementById('quizResult').textContent= ok ? '✅ Correct' : `❌ Not quite. Expected ≈ ${fmt(correct,4)} ${currentQuiz.units}`; if(userUnits && userUnits!==currentQuiz.units){ document.getElementById('quizResult').textContent+=` (units: ${currentQuiz.units})`; } }
+function showQuizSteps(){ if(!currentQuiz){ document.getElementById('quizSteps').textContent='Click New Question.'; return; } document.getElementById('quizSteps').textContent=currentQuiz.steps; }
+
+// ====== Percent → Molarity (Stock Solver) ======
+function computeStockMolarity(){
+  const MW=val('stkMW'), pct=val('stkPct'), basis=(document.getElementById('stkBasis')||{value:'w_w'}).value, rhoSoln=val('stkRhoSoln'), rhoSolute=val('stkRhoSolute');
+  if(!isFinite(MW)||!isFinite(pct)){ setOut('stockMOut','Provide molar mass and percent value.'); return; }
+  let g_per_L=NaN, steps=[];
+  if(basis==='w_w'){ if(!isFinite(rhoSoln)){ setOut('stockMOut','Provide ρ(solution) for %w/w.'); return; } g_per_L=(pct/100)*rhoSoln*1000; steps.push(`%w/w: g/L = (${pct}/100)×${rhoSoln}×1000 = ${fmt(g_per_L)}`); }
+  else if(basis==='w_v'){ g_per_L=pct*10; steps.push(`%w/v: g/L = ${pct}×10 = ${fmt(g_per_L)}`); }
+  else{ if(!isFinite(rhoSolute)){ setOut('stockMOut','Provide ρ(solute) for %v/v.'); return; } g_per_L=(pct/100)*1000*rhoSolute; steps.push(`%v/v: g/L = (${pct}/100)×1000×${rhoSolute} = ${fmt(g_per_L)}`); }
+  const M=g_per_L/MW; steps.push(`M_stock = ${fmt(g_per_L)} ÷ ${MW} = ${fmt(M,6)} M`); setOut('stockMOut', steps.join('<br>')); log(`Stock molarity = ${M} M`);
+}
+
+// ====== Quick Conversions (step-by-step) ======
+function sig(x, s=4){
+  if(!isFinite(x)) return NaN;
+  if(x === 0) return 0;
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10, e);
+  const rounded = Math.round(m * Math.pow(10, s-1)) / Math.pow(10, s-1);
+  return rounded * Math.pow(10, e);
+}
+function toSci(x, s=3){
+  if(!isFinite(x)) return '—';
+  const e = x === 0 ? 0 : Math.floor(Math.log10(Math.abs(x)));
+  const m = x / Math.pow(10, e);
+  const mround = Math.round(m * Math.pow(10, s-1)) / Math.pow(10, s-1);
+  const supers = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  const expStr = String(e).split('').map(ch=>supers[ch]||ch).join('');
+  return `${mround} × 10${expStr}`;
+}
+function configureQuickConv(){
+  const t = document.getElementById('qcType').value;
+  const mwBox = document.getElementById('qcMWBox');
+  const labA = document.getElementById('qcLabelA');
+  if(t === 'M_to_gL'){
+    mwBox.style.display = 'block';
+    labA.innerHTML = 'Molarity (M)<input id="qcValA" type="number" step="any" placeholder="e.g., 0.0500" />';
+  }else if(t === 'gL_to_mgL'){
+    mwBox.style.display = 'none';
+    labA.innerHTML = 'g/L<input id="qcValA" type="number" step="any" placeholder="e.g., 7.9805" />';
+  }else if(t === 'mgL_to_ugL'){
+    mwBox.style.display = 'none';
+    labA.innerHTML = 'mg/L<input id="qcValA" type="number" step="any" placeholder="e.g., 7980.5" />';
+  }else if(t === 'mgL_to_ppm'){
+    mwBox.style.display = 'none';
+    labA.innerHTML = 'mg/L<input id="qcValA" type="number" step="any" placeholder="e.g., 25.0" />';
+  }else{
+    mwBox.style.display = 'none';
+    labA.innerHTML = 'µg/L<input id="qcValA" type="number" step="any" placeholder="e.g., 40.0" />';
+  }
+  document.getElementById('qcOut').textContent='';
+}
+function clearQuickConv(){
+  const t = document.getElementById('qcType');
+  if(t) t.value = 'M_to_gL';
+  const mwBox = document.getElementById('qcMWBox');
+  mwBox.style.display='block';
+  document.getElementById('qcMW').value='';
+  document.getElementById('qcValA').value='';
+  document.getElementById('qcOut').textContent='';
+  configureQuickConv();
+}
+function runQuickConv(){
+  const t = document.getElementById('qcType').value;
+  const a = parseFloat(document.getElementById('qcValA').value);
+  let out = [];
+  if(t === 'M_to_gL'){
+    const MW = parseFloat(document.getElementById('qcMW').value);
+    if(!isFinite(a) || !isFinite(MW)){ setOut('qcOut','Provide Molarity and MW.'); return; }
+    const gL = a * MW;
+    out.push(`g/L = M × MW = ${a} × ${MW} = ${fmt(gL,4)} g/L`);
+    setOut('qcOut', out.join('\n'));
+    log(out.join('\n'));
+  }else if(t === 'gL_to_mgL'){
+    if(!isFinite(a)){ setOut('qcOut','Provide g/L value.'); return; }
+    const mgL = a * 1000;
+    out.push(`mg/L = g/L × 1000 = ${a} × 1000 = ${fmt(mgL,4)} mg/L`);
+    setOut('qcOut', out.join('\n'));
+    log(out.join('\n'));
+  }else if(t === 'mgL_to_ugL'){
+    if(!isFinite(a)){ setOut('qcOut','Provide mg/L value.'); return; }
+    const ugL = a * 1000;
+    const pretty = toSci(ugL, 3); // 3 sig figs e.g., 7.98 × 10⁶
+    out.push(`µg/L = mg/L × 1000 = ${a} × 1000 = ${pretty} µg/L`);
+    setOut('qcOut', out.join('\n'));
+    log(out.join('\n'));
+  }else if(t === 'mgL_to_ppm'){
+    if(!isFinite(a)){ setOut('qcOut','Provide mg/L value.'); return; }
+    const ppm = a;
+    out.push(`ppm ≈ mg/L = ${a} ppm`);
+    out.push(`This equivalence applies to dilute aqueous solutions where density ≈ 1.00 kg/L.`);
+    setOut('qcOut', out.join('\n'));
+    log(out.join('\n'));
+  }else if(t === 'ugL_to_ppb'){
+    if(!isFinite(a)){ setOut('qcOut','Provide µg/L value.'); return; }
+    const ppb = a;
+    out.push(`ppb ≈ µg/L = ${a} ppb`);
+    out.push(`This equivalence applies to dilute aqueous solutions where density ≈ 1.00 kg/L.`);
+    setOut('qcOut', out.join('\n'));
+    log(out.join('\n'));
+  }
+}
+// Initialize Quick Conversions UI
+document.addEventListener('DOMContentLoaded', configureQuickConv);
+document.addEventListener('DOMContentLoaded', configureMMASolver);
+document.addEventListener('DOMContentLoaded', configureConcentrationCalculator);
+
+</script>
+</body>
+</html>
